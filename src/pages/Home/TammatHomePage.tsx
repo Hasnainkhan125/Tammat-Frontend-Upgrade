@@ -2269,46 +2269,183 @@ dark:bg-black
     <p className="mt-1 sm:mt-2 max-w-[92%] sm:max-w-md text-xs sm:text-sm leading-relaxed text-white/75 line-clamp-2 sm:line-clamp-none">
       {currentSteps[activeStep]?.description}
     </p>
-
-{/* Progress — modern segmented bar, smooth spring fill */}
-    <div className="mt-3 sm:mt-5">
-
-      <div className="mb-1.5 sm:mb-2 flex items-center justify-between text-[10px] sm:text-xs font-medium text-white/55">
-        <span>Progress</span>
-
-        <span className="text-white/80 font-semibold">
-          {activeStep + 1}/{currentSteps.length}
+{/* Progress — Modern interactive timeline with glow effects */}
+<div className="mt-3 sm:mt-5">
+  {/* Progress Header with animated counter */}
+  <div className="mb-2 sm:mb-3 flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] sm:text-xs font-medium text-white/50">
+        Progress
+      </span>
+      <motion.div
+        key={activeStep}
+        initial={{ width: 0, opacity: 0 }}
+        animate={{ width: 'auto', opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="px-2 py-0.5 rounded-full bg-[var(--primary)]/20 border border-[var(--primary)]/30"
+      >
+        <span className="text-[8px] sm:text-[10px] font-bold text-[var(--primary)]">
+          {Math.round(((activeStep + 1) / currentSteps.length) * 100)}%
         </span>
-      </div>
+      </motion.div>
+    </div>
 
-      <div className="flex gap-1 sm:gap-1.5">
+    <motion.span 
+      key={activeStep}
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="text-[11px] sm:text-sm font-bold text-white"
+    >
+      {String(activeStep + 1).padStart(2, '0')}
+      <span className="text-white/30 font-medium">/{String(currentSteps.length).padStart(2, '0')}</span>
+    </motion.span>
+  </div>
+
+  {/* Progress Bar — Modern glass-morphism with glow */}
+  <div className="relative">
+    {/* Glass background track */}
+    <div className="relative h-2 sm:h-2.5 rounded-full overflow-hidden bg-white/5 backdrop-blur-sm border border-white/5">
+      {/* Animated fill with gradient and glow */}
+      <motion.div
+        initial={false}
+        animate={{ 
+          width: `${((activeStep + 1) / currentSteps.length) * 100}%` 
+        }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 200, 
+          damping: 30,
+          mass: 0.8
+        }}
+        className="relative h-full rounded-full"
+        style={{
+          background: 'linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%)',
+        }}
+      >
+        {/* Shimmer effect on bar */}
+        <motion.div
+          animate={{ x: ['-100%', '100%'] }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity,
+            ease: "easeInOut",
+            repeatDelay: 1
+          }}
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+            width: '50%',
+          }}
+        />
+        
+        {/* Glow effect at the end */}
+        <div 
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full blur-xl"
+          style={{ background: 'var(--primary)' }}
+        />
+      </motion.div>
+
+      {/* Step markers on the bar */}
+      <div className="absolute inset-0 flex items-center justify-between px-0.5">
         {currentSteps.map((_, i) => {
-          const filled = i <= activeStep
-          const current = i === activeStep
-
+          const isActive = i === activeStep
+          const isCompleted = i < activeStep
+          
           return (
-            <div
+            <motion.button
               key={i}
-              className="relative h-1.5 sm:h-2 flex-1 overflow-hidden rounded-full bg-white/10"
+              onClick={() => setActiveStep(i)}
+              className={`
+                relative z-10
+                h-3 w-3 sm:h-3.5 sm:w-3.5 
+                rounded-full 
+                transition-all duration-300
+                focus:outline-none
+                ${isActive 
+                  ? 'scale-110 ring-2 ring-white/30 ring-offset-2 ring-offset-transparent' 
+                  : isCompleted 
+                    ? 'scale-100' 
+                    : 'scale-90'
+                }
+                cursor-pointer
+              `}
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.9 }}
             >
-              <motion.div
-                initial={false}
-                animate={{ scaleX: filled ? 1 : 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 28, delay: i * 0.05 }}
-                style={{ transformOrigin: "left" }}
+              {/* Background circle */}
+              <div 
                 className={`
                   absolute inset-0 rounded-full
-                  ${current
-                    ? "bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/70"
-                    : "bg-[var(--primary)]"
+                  ${isActive || isCompleted 
+                    ? 'bg-white' 
+                    : 'bg-white/20'
                   }
+                  transition-colors duration-300
                 `}
               />
-            </div>
+
+              {/* Inner dot for completed steps */}
+              {isCompleted && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <div className="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full" />
+                </motion.div>
+              )}
+
+              {/* Pulse ring for active */}
+              {isActive && (
+                <motion.div
+                  className="absolute inset-[-4px] rounded-full"
+                  animate={{ 
+                    scale: [1, 1.5, 1],
+                    opacity: [0.6, 0, 0.6]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity,
+                    ease: "easeInOut" 
+                  }}
+                  style={{ 
+                    border: '2px solid var(--primary)',
+                  }}
+                />
+              )}
+
+              {/* Tooltip on hover */}
+              <div className="absolute -top-6 sm:-top-7 left-1/2 -translate-x-1/2 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200">
+                <span className="text-[7px] sm:text-[9px] font-medium text-white bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded whitespace-nowrap">
+                  Step {i + 1}
+                </span>
+              </div>
+            </motion.button>
           )
         })}
       </div>
+    </div>
+  </div>
 
+  {/* Progress labels - minimal */}
+  <div className="mt-1.5 sm:mt-2 flex items-center justify-between text-[8px] sm:text-[9px] font-medium text-white/20">
+    <span>Start</span>
+    <div className="flex items-center gap-3">
+      {currentSteps.map((step, i) => (
+        <motion.span
+          key={i}
+          animate={{ 
+            opacity: i === activeStep ? 1 : i < activeStep ? 0.6 : 0.3
+          }}
+          className="hidden sm:inline text-[8px] transition-colors duration-300"
+        >
+          {step.title?.split(' ').slice(0, 2).join(' ')}
+        </motion.span>
+      ))}
+    </div>
+    <span>Complete</span>
+  </div>
     </div>
   </motion.div>
 
