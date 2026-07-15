@@ -94,8 +94,8 @@ const ALL_CATEGORIES = [
 // ─── Mobile categories (only 4) ────────────────────────────────────────
 const MOBILE_CATEGORIES = [
   { key: '',          label: 'All', icon: Grid },
-  { key: 'family',    label: 'Family', icon: Users },
   { key: 'golden',    label: 'Golden Visa', icon: Crown },
+    { key: 'family',    label: 'Family', icon: Users },
   { key: 'renew',     label: 'Renewal', icon: RefreshIcon },
 ]
 
@@ -241,7 +241,7 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
       {/* Category quick-select - scrollable on mobile */}
       <div 
         ref={scrollContainerRef}
-        className="w-full overflow-x-auto overflow-y-hidden pb-1 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
+        className="w-full overflow-x-auto overflow-y-hidden pb-1 scrollbar-hide -mx-4 px-1 sm:mx-0 sm:px-0"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <motion.div
