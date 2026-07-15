@@ -13,13 +13,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -36,13 +29,9 @@ import {
   Clock,
   AlertCircle,
   Plus,
-  Bell,
-  Grid,
   Crown,
   Sparkles,
-  TrendingUp,
   Zap,
-  Calendar,
   Phone,
   Mail,
   MessageSquare,
@@ -60,6 +49,14 @@ import {
   X,
   ArrowUpRight,
   ArrowRight,
+  LayoutDashboard,
+  FolderOpen,
+  LogOut,
+  Moon,
+  Sun,
+  Globe,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -83,11 +80,11 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import ExpandedApplicationCard from '@/components/ApplicationCard/ExpandedApplicationCard';
 import LiveChatWidget from '@/components/LiveChat/LiveChatWidget';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 
+// Modern Navigation Items with icons
 const NAV_ITEMS = [
-  { to: '/user/dashboard', label: 'Portfolio', icon: PieChartIcon },
-  { to: '/user/documents', label: 'Documents', icon: FileText },
+  { to: '/user/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/user/documents', label: 'Documents', icon: FolderOpen },
   { to: '/investor/compliance', label: 'Compliance', icon: Shield },
   { to: '/user/profile', label: 'Profile', icon: User },
 ];
@@ -141,8 +138,22 @@ const AdvancedInvestorPortfolio = () => {
   const [checks, setChecks] = useState<any[]>([]);
   const [checksLoading, setChecksLoading] = useState(true);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
 
   const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     const fetchChecks = async () => {
@@ -167,8 +178,7 @@ const AdvancedInvestorPortfolio = () => {
   const handleDocumentDownload = async (attachment: any, app: any) => {
     try {
       const token = localStorage.getItem('authToken') || '';
-      const applicationId =
-        app?._id || app?.id;
+      const applicationId = app?._id || app?.id;
       const response = await fetch(
         `${apiBase}/api/v1/visa/${applicationId}/attachments/${attachment._id}/download`,
         {
@@ -201,7 +211,6 @@ const AdvancedInvestorPortfolio = () => {
         toast.error('Document URL not available');
         return;
       }
-
       window.open(fileUrl, '_blank');
     } catch (error) {
       console.error('View error:', error);
@@ -213,7 +222,6 @@ const AdvancedInvestorPortfolio = () => {
   const totalApplications = stats.total || 0;
   const approvedApplications = stats.approved || 0;
   const userLevel = Math.min(5, Math.floor(approvedApplications / 3) + 1);
-  const nextLevelProgress = ((approvedApplications % 3) / 3) * 100;
   const rewardPoints = approvedApplications * 50 + totalApplications * 10;
 
   // Get applications that need attention
@@ -230,41 +238,41 @@ const AdvancedInvestorPortfolio = () => {
       case 'approved':
         return {
           icon: CheckCircle,
-          color: 'text-green-600',
-          bg: 'bg-green-50',
-          border: 'border-green-200',
+          color: 'text-green-600 dark:text-green-400',
+          bg: 'bg-green-50 dark:bg-green-950/30',
+          border: 'border-green-200 dark:border-green-800/50',
           label: 'Approved',
         };
       case 'under_review':
         return {
           icon: Clock,
-          color: 'text-blue-600',
-          bg: 'bg-blue-50',
-          border: 'border-blue-200',
+          color: 'text-blue-600 dark:text-blue-400',
+          bg: 'bg-blue-50 dark:bg-blue-950/30',
+          border: 'border-blue-200 dark:border-blue-800/50',
           label: 'Under Review',
         };
       case 'docs_required':
         return {
           icon: AlertCircle,
-          color: 'text-orange-600',
-          bg: 'bg-orange-50',
-          border: 'border-orange-200',
+          color: 'text-orange-600 dark:text-orange-400',
+          bg: 'bg-orange-50 dark:bg-orange-950/30',
+          border: 'border-orange-200 dark:border-orange-800/50',
           label: 'Docs Required',
         };
       case 'submitted':
         return {
           icon: Clock,
-          color: 'text-purple-600',
-          bg: 'bg-purple-50',
-          border: 'border-purple-200',
+          color: 'text-purple-600 dark:text-purple-400',
+          bg: 'bg-purple-50 dark:bg-purple-950/30',
+          border: 'border-purple-200 dark:border-purple-800/50',
           label: 'Submitted',
         };
       default:
         return {
           icon: FileText,
-          color: 'text-gray-600',
-          bg: 'bg-gray-50',
-          border: 'border-gray-200',
+          color: 'text-gray-600 dark:text-gray-400',
+          bg: 'bg-gray-50 dark:bg-gray-800/30',
+          border: 'border-gray-200 dark:border-gray-700',
           label: status.replace('_', ' '),
         };
     }
@@ -317,24 +325,24 @@ const AdvancedInvestorPortfolio = () => {
       label: 'In Progress',
       value: stats.under_review || 0,
       icon: Clock,
-      iconWrap: 'bg-blue-500/10 text-blue-600',
-      cardClass: 'border-blue-200/70 bg-gradient-to-br from-blue-50/60 to-transparent dark:from-blue-950/20',
+      iconWrap: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
+      cardClass: 'border-blue-200/70 dark:border-blue-800/40 bg-gradient-to-br from-blue-50/60 to-transparent dark:from-blue-950/20',
     },
     {
       key: 'approved',
       label: 'Approved',
       value: stats.approved || 0,
       icon: CheckCircle,
-      iconWrap: 'bg-green-500/10 text-green-600',
-      cardClass: 'border-green-200/70 bg-gradient-to-br from-green-50/60 to-transparent dark:from-green-950/20',
+      iconWrap: 'bg-green-500/10 text-green-600 dark:text-green-400',
+      cardClass: 'border-green-200/70 dark:border-green-800/40 bg-gradient-to-br from-green-50/60 to-transparent dark:from-green-950/20',
     },
     {
       key: 'docs_required',
       label: 'Pending',
       value: stats.docs_required || 0,
       icon: AlertCircle,
-      iconWrap: 'bg-orange-500/10 text-orange-600',
-      cardClass: 'border-orange-200/70 bg-gradient-to-br from-orange-50/60 to-transparent dark:from-orange-950/20',
+      iconWrap: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
+      cardClass: 'border-orange-200/70 dark:border-orange-800/40 bg-gradient-to-br from-orange-50/60 to-transparent dark:from-orange-950/20',
     },
   ];
 
@@ -350,46 +358,198 @@ const AdvancedInvestorPortfolio = () => {
       </div>
     );
   }
+
   const isActive = (path: string) => pathname.pathname === path;
 
   return (
     <div className="bg-background flex min-h-screen">
-      {/* Desktop Sidebar */}
-      <aside className="border-primary/10 bg-surface-light/40 sticky top-0 hidden h-screen w-64 shrink-0 border-r p-6 lg:flex lg:flex-col">
-        <div className="mb-8 flex items-center gap-2 px-2">
-          <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-xl shadow-sm">
-            <Building2 className="text-primary-foreground h-5 w-5" />
-          </div>
-          <span className="text-foreground text-lg font-semibold tracking-tight">
-            Investor Portal
-          </span>
+      {/* Modern Desktop Sidebar */}
+      <motion.aside
+        className="border-primary/10 bg-background/95 sticky top-0 hidden h-screen shrink-0 border-r backdrop-blur-xl lg:flex lg:flex-col"
+        animate={{
+          width: isSidebarCollapsed ? 80 : 260,
+        }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+      >
+        {/* Logo Section */}
+        <div className="flex h-16 items-center justify-between border-b border-primary/10 px-4">
+          <motion.div
+            className="flex items-center gap-3 overflow-hidden"
+            animate={{
+              width: isSidebarCollapsed ? 40 : 'auto',
+            }}
+          >
+   <div className="bg-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-lg shadow-primary/25">
+  <Building2 className="h-5 w-5 text-white" />
+</div>
+            <motion.span
+              className="text-foreground whitespace-nowrap text-lg font-semibold tracking-tight"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{
+                opacity: isSidebarCollapsed ? 0 : 1,
+                width: isSidebarCollapsed ? 0 : 'auto',
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              Investor Portal
+            </motion.span>
+          </motion.div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0 rounded-lg"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          >
+            {isSidebarCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </Button>
         </div>
-        <nav className="flex-1 space-y-1.5">
+
+        {/* Navigation Links */}
+        <nav className="flex-1 space-y-1.5 px-3 py-4">
           {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
             <Link key={to} to={to}>
-              <Button
-                variant="ghost"
-                className={`w-full justify-start rounded-xl font-medium transition-colors ${
-                  isActive(to)
-                    ? 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90'
-                    : 'text-foreground/80 hover:bg-primary/10 hover:text-foreground'
-                }`}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <Icon className="mr-2 h-4 w-4" />
-                {label}
-              </Button>
+               <Button
+  variant="ghost"
+  className={`
+    group relative h-12 w-full overflow-hidden rounded-2xl px-3
+    justify-start border transition-all duration-300 ease-out
+
+    ${
+      isActive(to)
+        ? `
+          border-[var(--primary)]/20
+          bg-gradient-to-r
+          from-[var(--primary)]
+          via-[var(--primary)]/90
+          to-[var(--primary)]/80
+          text-white
+          shadow-[0_10px_35px_rgba(0,0,0,0.12)]
+          shadow-primary/30
+        `
+        : `
+          border-transparent
+          text-muted-foreground
+          hover:border-primary/15
+          hover:bg-primary/8
+          hover:text-foreground
+          hover:shadow-lg
+          hover:shadow-primary/10
+          hover:-translate-y-0.5
+        `
+    }
+  `}
+>
+  {/* Glow */}
+  {isActive(to) && (
+    <div className="absolute inset-0 bg-gradient-to-r from-white/15 via-transparent to-transparent" />
+  )}
+
+  {/* Active Indicator */}
+  <div
+    className={`
+      absolute left-0 top-1/2 -translate-y-1/2
+      h-7 w-1 rounded-full transition-all duration-300
+      ${
+        isActive(to)
+          ? "bg-white shadow-[0_0_12px_rgba(255,255,255,0.8)]"
+          : "bg-transparent"
+      }
+    `}
+  />
+
+  {/* Icon */}
+  <Icon
+    className={`
+      relative z-10 h-5 w-5 shrink-0 transition-all duration-300
+      ${isActive(to) ? "text-white" : "group-hover:scale-110"}
+    `}
+  />
+
+  {/* Text */}
+  <motion.span
+    className="relative z-10 ml-3 overflow-hidden whitespace-nowrap font-medium"
+    initial={{ opacity: 0, width: 0 }}
+    animate={{
+      opacity: isSidebarCollapsed ? 0 : 1,
+      width: isSidebarCollapsed ? 0 : "auto",
+    }}
+    transition={{ duration: 0.2 }}
+  >
+    {label}
+  </motion.span>
+</Button>
+              </motion.div>
             </Link>
           ))}
         </nav>
-        <div className="border-primary/10 border-t pt-4">
-          <p className="text-text-secondary px-2 text-xs">
-            Signed in as
-          </p>
-          <p className="text-foreground truncate px-2 text-sm font-medium">
-            {userDetails?.firstName || user?.name || 'User'}
-          </p>
+
+        {/* Bottom Section */}
+        <div className="border-primary/10 space-y-2 ">
+ 
+
+          {/* User Profile */}
+          <motion.div
+            className="flex items-center gap-3 rounded-xl border border-primary/10 bg-primary/5 p-2"
+            animate={{
+              padding: isSidebarCollapsed ? '8px' : '8px 12px',
+            }}
+          >
+            <Avatar className="border-primary/30 h-9 w-9 shrink-0 border-2">
+              <AvatarImage src={userDetails?.avatar} />
+              <AvatarFallback className="bg-primary text-sm font-bold text-white">
+                {userDetails?.firstName?.[0]}
+                {userDetails?.lastName?.[0]}
+              </AvatarFallback>
+            </Avatar>
+            <motion.div
+              className="min-w-0 overflow-hidden"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{
+                opacity: isSidebarCollapsed ? 0 : 1,
+                width: isSidebarCollapsed ? 0 : 'auto',
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className="text-foreground truncate text-sm font-medium">
+                {userDetails?.firstName || user?.name || 'User'}
+              </p>
+              <p className="text-text-secondary truncate text-xs">
+                {userDetails?.role || 'User'}
+              </p>
+            </motion.div>
+          </motion.div>
+
+          {/* Logout */}
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              variant="ghost"
+              className="w-full justify-start rounded-xl text-red-500/70 hover:bg-red-500/10 hover:text-red-500"
+              onClick={signOut}
+            >
+              <LogOut className="h-5 w-5 shrink-0" />
+              <motion.span
+                className="ml-3 overflow-hidden whitespace-nowrap"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{
+                  opacity: isSidebarCollapsed ? 0 : 1,
+                  width: isSidebarCollapsed ? 0 : 'auto',
+                }}
+                transition={{ duration: 0.2 }}
+              >
+                Logout
+              </motion.span>
+            </Button>
+          </motion.div>
         </div>
-      </aside>
+      </motion.aside>
 
       {/* Mobile Nav Drawer */}
       <AnimatePresence>
@@ -409,11 +569,11 @@ const AdvancedInvestorPortfolio = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'tween', duration: 0.25, ease: 'easeOut' }}
-              className="bg-background fixed inset-y-0 left-0 z-50 flex w-72 max-w-[80vw] flex-col border-r p-6 lg:hidden"
+              className="bg-background fixed inset-y-0 left-0 z-50 flex w-72 max-w-[80vw] flex-col border-r p-6 shadow-2xl lg:hidden"
             >
               <div className="mb-8 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-xl">
+                  <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-xl shadow-lg shadow-primary/25">
                     <Building2 className="text-primary-foreground h-5 w-5" />
                   </div>
                   <span className="text-foreground text-lg font-semibold">
@@ -436,16 +596,38 @@ const AdvancedInvestorPortfolio = () => {
                       variant="ghost"
                       className={`w-full justify-start rounded-xl font-medium ${
                         isActive(to)
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground/80 hover:bg-primary/10'
+                          ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                          : 'text-foreground/70 hover:bg-primary/10 hover:text-foreground'
                       }`}
                     >
-                      <Icon className="mr-2 h-4 w-4" />
+                      <Icon className="mr-3 h-5 w-5" />
                       {label}
                     </Button>
                   </Link>
                 ))}
               </nav>
+              <div className="border-primary/10 space-y-2 border-t pt-4">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start rounded-xl text-foreground/70 hover:bg-primary/10 hover:text-foreground"
+                  onClick={toggleDarkMode}
+                >
+                  {isDarkMode ? (
+                    <Sun className="mr-3 h-5 w-5" />
+                  ) : (
+                    <Moon className="mr-3 h-5 w-5" />
+                  )}
+                  {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start rounded-xl text-red-500/70 hover:bg-red-500/10 hover:text-red-500"
+                  onClick={signOut}
+                >
+                  <LogOut className="mr-3 h-5 w-5" />
+                  Logout
+                </Button>
+              </div>
             </motion.aside>
           </>
         )}
@@ -467,7 +649,7 @@ const AdvancedInvestorPortfolio = () => {
               </Button>
               <Avatar className="border-primary/30 h-10 w-10 shrink-0 border-2 sm:h-12 sm:w-12">
                 <AvatarImage src={userDetails?.avatar} />
-                <AvatarFallback className="bg-primary text-sm font-bold text-primary-foreground">
+                <AvatarFallback className="bg-primary text-sm font-bold text-white">
                   {userDetails?.firstName?.[0]}
                   {userDetails?.lastName?.[0]}
                 </AvatarFallback>
@@ -481,7 +663,7 @@ const AdvancedInvestorPortfolio = () => {
                     <Crown className="mr-1 h-3 w-3" />
                     Level {userLevel}
                   </Badge>
-                  <Badge className="border-amber-300 bg-amber-100 text-[11px] text-amber-800 sm:text-xs">
+                  <Badge className="border-amber-300 bg-amber-100 text-[11px] text-amber-800 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-300 sm:text-xs">
                     <Sparkles className="mr-1 h-3 w-3" />
                     {rewardPoints} pts
                   </Badge>
@@ -491,7 +673,7 @@ const AdvancedInvestorPortfolio = () => {
 
             {/* New Application */}
             <Button
-              className="bg-primary hover:bg-primary/90 shrink-0 rounded-xl text-white shadow-sm"
+              className="bg-primary hover:bg-primary/90 shrink-0 rounded-xl text-white shadow-lg shadow-primary/25"
               onClick={() => setShowStartApplication(true)}
             >
               <Plus className="h-4 w-4 sm:mr-2" />
@@ -542,7 +724,7 @@ const AdvancedInvestorPortfolio = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <Card className={`rounded-2xl border bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-black ${cardClass}`}>
+                <Card className={`rounded-2xl border bg-white shadow-sm transition-shadow hover:shadow-md dark:bg-black/50 ${cardClass}`}>
                   <CardContent className="p-4 sm:p-5">
                     <div className="flex items-center justify-between">
                       <div className="min-w-0">
@@ -564,7 +746,7 @@ const AdvancedInvestorPortfolio = () => {
           </div>
 
           {/* Applications List */}
-          <Card className="rounded-2xl bg-white shadow-sm dark:bg-black">
+          <Card className="rounded-2xl bg-white shadow-sm dark:bg-black/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
@@ -587,7 +769,7 @@ const AdvancedInvestorPortfolio = () => {
                     Start your first visa application today!
                   </p>
                   <Button
-                    className="bg-primary hover:bg-primary/90 rounded-xl text-white"
+                    className="bg-primary hover:bg-primary/90 rounded-xl text-white shadow-lg shadow-primary/25"
                     onClick={() => setShowStartApplication(true)}
                   >
                     <Plus className="mr-2 h-4 w-4" />
@@ -627,7 +809,7 @@ const AdvancedInvestorPortfolio = () => {
           </Card>
 
           {/* Immigration Status Checks */}
-          <Card className="rounded-2xl bg-white shadow-sm dark:bg-black">
+          <Card className="rounded-2xl bg-white shadow-sm dark:bg-black/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
                 <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
@@ -712,7 +894,7 @@ const AdvancedInvestorPortfolio = () => {
           {/* Analytics Charts */}
           {applications.length > 0 && (
             <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
-              <Card className="border-primary/20 rounded-2xl bg-white shadow-sm dark:bg-black">
+              <Card className="border-primary/20 rounded-2xl bg-white shadow-sm dark:bg-black/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                     <PieChartIcon className="text-primary h-5 w-5" />
@@ -750,7 +932,7 @@ const AdvancedInvestorPortfolio = () => {
                 </CardContent>
               </Card>
 
-              <Card className="border-primary/20 rounded-2xl bg-white shadow-sm dark:bg-black">
+              <Card className="border-primary/20 rounded-2xl bg-white shadow-sm dark:bg-black/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
                     <BarChart3 className="text-primary h-5 w-5" />
@@ -787,7 +969,7 @@ const AdvancedInvestorPortfolio = () => {
           {/* Services & Support */}
           <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
             {/* Government Services */}
-            <Card className="rounded-2xl bg-white shadow-sm dark:bg-black">
+            <Card className="rounded-2xl bg-white shadow-sm dark:bg-black/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
@@ -828,7 +1010,7 @@ const AdvancedInvestorPortfolio = () => {
             </Card>
 
             {/* Knowledge Hub & Support */}
-            <Card className="rounded-2xl bg-white shadow-sm dark:bg-black">
+            <Card className="rounded-2xl bg-white shadow-sm dark:bg-black/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <div className="bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg">
@@ -896,7 +1078,7 @@ const AdvancedInvestorPortfolio = () => {
 
       {/* Mobile Bottom Tab Bar */}
       <nav className="border-primary/10 bg-background/95 fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t px-2 py-2 backdrop-blur-md lg:hidden">
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+        {NAV_ITEMS.slice(0, 4).map(({ to, label, icon: Icon }) => (
           <Link key={to} to={to} className="flex-1">
             <button
               className={`flex w-full flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] transition-colors ${
@@ -906,7 +1088,7 @@ const AdvancedInvestorPortfolio = () => {
               }`}
             >
               <Icon className={`h-5 w-5 ${isActive(to) ? 'text-primary' : ''}`} />
-              {label}
+              <span className="text-[10px]">{label}</span>
             </button>
           </Link>
         ))}
@@ -1050,7 +1232,7 @@ const AdvancedInvestorPortfolio = () => {
                             (doc: any, idx: number) => (
                               <div
                                 key={idx}
-                                className="bg-surface-light flex items-center justify-between gap-2 rounded-lg border p-3"
+                                className="bg-surface-light flex items-center justify-between gap-2 rounded-lg border p-3 dark:bg-black/30"
                               >
                                 <div className="flex min-w-0 items-center gap-2">
                                   <FileText className="text-primary h-4 w-4 shrink-0" />

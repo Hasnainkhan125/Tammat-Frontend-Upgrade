@@ -23,6 +23,13 @@ import {
   FileText,
   Star,
   Sparkles,
+  Grid,
+  Home,
+  Briefcase as BriefcaseIcon,
+  Crown,
+  RefreshCw as RefreshIcon,
+  XCircle as XCircleIcon,
+  Building,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
@@ -73,15 +80,23 @@ const MOST_CHOSEN_KEYS = ['spouse', 'family', 'golden', 'employ', 'change', 'ren
 const isMostChosen = (name: string) =>
   MOST_CHOSEN_KEYS?.some(k => name?.toLowerCase()?.includes(k))
 
-// ─── Categories derived from services ────────────────────────────────────────
-const CATEGORY_QUICK = [
-  { key: '',          label: 'All' },
-  { key: 'family',    label: 'Family' },
-  { key: 'employ',    label: 'Employment' },
-  { key: 'golden',    label: 'Golden Visa' },
-  { key: 'renew',     label: 'Renewal' },
-  { key: 'cancel',    label: 'Cancellation' },
-  { key: 'establish', label: 'Business' },
+// ─── All categories ────────────────────────────────────────
+const ALL_CATEGORIES = [
+  { key: '',          label: 'All', icon: Grid },
+  { key: 'family',    label: 'Family', icon: Users },
+  { key: 'employ',    label: 'Employment', icon: BriefcaseIcon },
+  { key: 'golden',    label: 'Golden Visa', icon: Crown },
+  { key: 'renew',     label: 'Renewal', icon: RefreshIcon },
+  { key: 'cancel',    label: 'Cancellation', icon: XCircleIcon },
+  { key: 'establish', label: 'Business', icon: Building },
+]
+
+// ─── Mobile categories (only 4) ────────────────────────────────────────
+const MOBILE_CATEGORIES = [
+  { key: '',          label: 'All', icon: Grid },
+  { key: 'family',    label: 'Family', icon: Users },
+  { key: 'golden',    label: 'Golden Visa', icon: Crown },
+  { key: 'renew',     label: 'Renewal', icon: RefreshIcon },
 ]
 
 const stagger = { animate: { transition: { staggerChildren: 0.035 } } }
@@ -91,10 +106,6 @@ const cardV = {
 }
 
 // Formats the service's price for display.
-// FlowService (see ApplicationFlow.tsx) carries price as:
-//   - fee: number
-//   - prices: ServicePrice[] -> { priceType: 'Inside' | 'Outside' | string, priceAmount: number, currency: string }
-// There is no `priceStandard` field — that was the source of the earlier bug.
 const getPriceLabel = (svc: FlowService): string | null => {
   const insidePrice = svc.prices?.find(p => p?.priceType?.toLowerCase() === 'inside')
   const anyPrice = insidePrice?.priceAmount ?? svc.prices?.[0]?.priceAmount
@@ -111,6 +122,7 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
   const [catFilter, setCatFilter] = useState('')
   const [inputFocused, setInputFocused] = useState(false)
   const searchRef = useRef<HTMLInputElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const t = setTimeout(() => searchRef.current?.focus(), 300)
@@ -139,7 +151,7 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
   }
 
   return (
-    <div className="w-full max-w-full overflow-x-hidden flex flex-col gap-4 sm:gap-5 px-5 sm:px-6 md:px-0 pt-4 sm:pt-5 md:pt-0 box-border mx-auto sm:max-w-none">
+    <div className="w-full flex flex-col gap-5">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
@@ -226,30 +238,44 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
         </div>
       </motion.div>
 
-      {/* Category quick-select */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.12 }}
-        className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-none"
-        style={{ scrollbarWidth: 'none' }}
+      {/* Category quick-select - scrollable on mobile */}
+      <div 
+        ref={scrollContainerRef}
+        className="w-full overflow-x-auto overflow-y-hidden pb-1 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
+        style={{ WebkitOverflowScrolling: 'touch' }}
       >
-        {CATEGORY_QUICK.map(cat => (
-          <button
-            key={cat.key}
-            onClick={() => setCatFilter(cat.key)}
-            className={`
-              shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-medium border transition-all duration-150
-              ${catFilter === cat.key
-                ? 'bg-[var(--primary)] text-white border-[var(--primary)] dark:bg-[var(--primary)] dark:text-white dark:border-[var(--primary)]'
-                : 'bg-white text-[#64748B] border-[#E2E8F0] hover:border-[var(--primary)] hover:text-[var(--primary)] dark:bg-zinc-900 dark:text-zinc-400 dark:border-white/10 dark:hover:border-[var(--primary)]/60 dark:hover:text-white'
-              }
-            `}
-          >
-            {t(`service.cat.${cat.key || 'all'}`, cat.label)}
-          </button>
-        ))}
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.12 }}
+          className="flex gap-2"
+          style={{ minWidth: 'max-content' }}
+        >
+          {/* Show all categories on desktop, only 4 on mobile */}
+          {(() => {
+            const categories = window.innerWidth < 640 ? MOBILE_CATEGORIES : ALL_CATEGORIES
+            return categories.map(cat => {
+              const Icon = cat.icon
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setCatFilter(cat.key)}
+                  className={`
+                    shrink-0 px-3 py-1.5 rounded-full text-[13px] font-medium border transition-all duration-150 whitespace-nowrap flex items-center gap-1.5
+                    ${catFilter === cat.key
+                      ? 'bg-[var(--primary)] text-white border-[var(--primary)] dark:bg-[var(--primary)] dark:text-white dark:border-[var(--primary)]'
+                      : 'bg-white text-[#64748B] border-[#E2E8F0] hover:border-[var(--primary)] hover:text-[var(--primary)] dark:bg-zinc-900 dark:text-zinc-400 dark:border-white/10 dark:hover:border-[var(--primary)]/60 dark:hover:text-white'
+                    }
+                  `}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {t(`service.cat.${cat.key || 'all'}`, cat.label)}
+                </button>
+              )
+            })
+          })()}
+        </motion.div>
+      </div>
 
       {/* Skeleton */}
       {loading ? (

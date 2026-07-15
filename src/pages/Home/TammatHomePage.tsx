@@ -2042,6 +2042,9 @@ dark:bg-black
         ))}
       </div>
 
+
+      
+
 {/* ================= Responsive Completion Badge ================= */}
 <motion.div
   initial={{ opacity: 0, y: 25, scale: 0.96 }}
@@ -2250,30 +2253,6 @@ dark:bg-black
     </span>
   </div>
 
-  {/* Floating Icon */}
-  <motion.div
-    whileHover={{ scale: 1.05 }}
-    className="
-      absolute
-      right-3 top-3
-      sm:right-6 sm:top-6
-      flex
-      h-9 w-9
-      sm:h-14 sm:w-14
-      lg:h-16 lg:w-16
-      items-center
-      justify-center
-      rounded-xl sm:rounded-2xl
-      border
-      border-white/15
-      bg-white/10
-      backdrop-blur-xl
-      transition-colors duration-300
-      group-hover:border-[var(--primary)]/40
-    "
-  >
-    <activeTabMeta.Icon className="h-4.5 w-4.5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 " />
-  </motion.div>
 
   {/* Bottom Content */}
   <motion.div
@@ -2291,7 +2270,6 @@ dark:bg-black
       {currentSteps[activeStep]?.description}
     </p>
 
-  {/* Progress — segmented step bars instead of one long fill bar */}
 {/* Progress — modern segmented bar, smooth spring fill */}
     <div className="mt-3 sm:mt-5">
 

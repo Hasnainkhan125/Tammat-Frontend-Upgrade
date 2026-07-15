@@ -29,6 +29,8 @@ export interface EnhancedVisaApplication {
     relationship?: string;
   };
   attachments: Array<{
+    _id?: string;
+    id?: string;
     path: string;
     filename: string;
     type: string;
@@ -123,16 +125,39 @@ export const useApplications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Your AuthContext's `user` object may expose the id under different keys
+  // depending on how it was populated (id, _id, userId, sub, etc). This
+  // resolves it safely instead of assuming `user.id` always exists, which
+  // was silently producing the string "undefined" in the request URL and
+  // crashing the backend's ObjectId cast.
+  const getUserId = (): string | null => {
+    if (!user) return null;
+    const candidate =
+      (user as any).id ??
+      (user as any)._id ??
+      (user as any).userId ??
+      (user as any).sub ??
+      null;
+    return candidate ? String(candidate) : null;
+  };
 
+  // Applications and their nested attachments can come back with either
+  // `id` or `_id` depending on which endpoint populated them. Resolve both
+  // consistently so lookups/filters never silently no-op.
+  const getAppKey = (app: any): string | undefined => app?.id ?? app?._id;
+  const getDocKey = (doc: any): string | undefined => doc?._id ?? doc?.id;
 
-  
   // Fetch user details
   const fetchUserDetails = async () => {
-    if (!user) return;
+    const userId = getUserId();
+    if (!userId) {
+      console.warn('fetchUserDetails skipped: no resolved user id yet');
+      return;
+    }
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`${API_BASE_URL}/applications/user/${user.id}`, {
+      const response = await fetch(`${API_BASE_URL}/applications/user/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -152,15 +177,25 @@ export const useApplications = () => {
 
   // Fetch applications for the current user by user ID
   const fetchApplications = async () => {
-    if (!user || authLoading) return;
+    if (authLoading) return;
+
+    const userId = getUserId();
+    if (!userId) {
+      // Don't fire the request at all if we don't have a real id yet —
+      // this is what was previously hitting the backend as
+      // "/applications/user/undefined" and throwing a Mongoose CastError.
+      console.warn('fetchApplications skipped: no resolved user id yet');
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('authToken');
-      
+
       // Fetch applications by user ID instead of email
-      const response = await fetch(`${API_BASE_URL}/applications/user/${user.id}`, {
+      const response = await fetch(`${API_BASE_URL}/applications/user/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -173,10 +208,10 @@ export const useApplications = () => {
 
       const data = await response.json();
       console.log(data);
-      if (data.status==='success') {
+      if (data.status === 'success') {
         setApplications(data.data.applications);
         setUserDetails(data.data.user);
-        
+
         // Transform stats from backend format
         const transformedStats: ApplicationStats = {
           total: data.data.applications.length || 0,
@@ -215,12 +250,13 @@ export const useApplications = () => {
 
   // Create new application
   const createApplication = async (applicationData: Partial<EnhancedVisaApplication> & { sponsor?: { phone?: string; emiratesId?: string } }) => {
-    if (!user) return null;
+    const userId = getUserId();
+    if (!userId) return null;
     console.log('createApplication called', applicationData)
 
     try {
       const token = localStorage.getItem('authToken');
-      
+
       const response = await fetch(`${API_BASE_URL}`, {
         method: 'POST',
         headers: {
@@ -267,7 +303,8 @@ export const useApplications = () => {
   const updateApplicationStatus = async (applicationId: string, newStatus: string, note?: string) => {
     try {
       const token = localStorage.getItem('authToken');
-      
+      const userId = getUserId();
+
       const response = await fetch(`${API_BASE_URL}/applications/${applicationId}/status`, {
         method: 'PUT',
         headers: {
@@ -285,7 +322,7 @@ export const useApplications = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         setApplications(prev => prev.map((app: EnhancedVisaApplication) => {
           if (app.id === applicationId) {
@@ -297,7 +334,7 @@ export const useApplications = () => {
                 ...app.history,
                 {
                   action: newStatus,
-                  by: user?.id || 'user',
+                  by: userId || 'user',
                   note: note || `Status updated to ${newStatus}`,
                   at: new Date().toISOString()
                 }
@@ -322,7 +359,8 @@ export const useApplications = () => {
   const submitApplication = async (applicationId: string) => {
     try {
       const token = localStorage.getItem('authToken');
-      
+      const userId = getUserId();
+
       const response = await fetch(`${API_BASE_URL}/applications/${applicationId}/submit`, {
         method: 'PUT',
         headers: {
@@ -336,7 +374,7 @@ export const useApplications = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         setApplications(prev => prev.map((app: EnhancedVisaApplication) => {
           if (app.id === applicationId) {
@@ -352,7 +390,7 @@ export const useApplications = () => {
                 ...app.history,
                 {
                   action: 'submitted',
-                  by: user?.id || 'user',
+                  by: userId || 'user',
                   note: 'Application submitted for review',
                   at: new Date().toISOString()
                 }
@@ -377,7 +415,8 @@ export const useApplications = () => {
   const uploadDocuments = async (applicationId: string, documents: File[]) => {
     try {
       const token = localStorage.getItem('authToken');
-      
+      const userId = getUserId();
+
       const formData = new FormData();
       documents.forEach((doc, index) => {
         formData.append('documents', doc);
@@ -396,7 +435,7 @@ export const useApplications = () => {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         setApplications(prev => prev.map((app: EnhancedVisaApplication) => {
           if (app.id === applicationId) {
@@ -418,7 +457,7 @@ export const useApplications = () => {
                 ...app.history,
                 {
                   action: 'documents_uploaded',
-                  by: user?.id || 'user',
+                  by: userId || 'user',
                   note: `${documents.length} document(s) uploaded`,
                   at: new Date().toISOString()
                 }
@@ -439,6 +478,53 @@ export const useApplications = () => {
     }
   };
 
+  // Delete a single document/attachment from an application.
+  // NOTE: this hits `${application}/attachments/{documentId}`, mirroring the
+  // download route the Documents page already calls
+  // (`/attachments/{id}/download`). If your backend exposes a different
+  // path for deletion, update the URL below to match.
+  const deleteDocument = async (applicationId: string, documentId: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+
+      const response = await fetch(`${API_BASE_URL}/${applicationId}/attachments/${documentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Some DELETE endpoints return no body — don't blow up parsing an
+      // empty response as JSON.
+      const data = await response.json().catch(() => ({} as any));
+
+      if (data && (data.success === false || data.status === 'error')) {
+        throw new Error(data.message || data.error || 'Failed to delete document');
+      }
+
+      // Remove the deleted attachment from local state so the UI updates
+      // immediately without waiting on a full refetch.
+      setApplications(prev => prev.map((app: EnhancedVisaApplication) => {
+        if (getAppKey(app) !== applicationId) return app;
+        return {
+          ...app,
+          attachments: app.attachments.filter((doc: any) => getDocKey(doc) !== documentId),
+          updatedAt: new Date().toISOString(),
+        };
+      }));
+    } catch (err) {
+      console.error('Error deleting document:', err);
+      // Re-throw so the calling component's try/catch can show its own
+      // toast/UI feedback instead of us double-toasting here.
+      throw err;
+    }
+  };
+
   // Delete application
   const deleteApplication = async (applicationId: string) => {
     try {
@@ -450,13 +536,14 @@ export const useApplications = () => {
     }
   };
 
-  // Fetch applications and user details when user changes
+  // context populates the user object asynchronously after mount).
+  const resolvedUserId = getUserId();
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && resolvedUserId) {
       fetchApplications();
       fetchUserDetails();
     }
-  }, [authLoading, user]);
+  }, [authLoading, resolvedUserId]);
 
   return {
     applications,
@@ -469,6 +556,7 @@ export const useApplications = () => {
     updateApplicationStatus,
     submitApplication,
     uploadDocuments,
+    deleteDocument,
     deleteApplication
   };
 };
