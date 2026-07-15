@@ -2827,7 +2827,8 @@ const FAQSection = () => {
   );
 };
 
-// Email Capture Section - Modern, separated input/button
+
+// Email Capture Section - Modern, Premium Design
 const EmailCapture = () => {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
@@ -2847,249 +2848,326 @@ const EmailCapture = () => {
   }, []);
 
   return (
-    <section ref={containerRef} className="relative py-16 sm:py-20 lg:py-28 bg-background">
-      <div className="container mx-auto px-4">
+    <section ref={containerRef} className="relative py-20 sm:py-28 lg:py-36 bg-gradient-to-b from-[#0a0a0f] via-[#14141e] to-[#0a0a0f] overflow-hidden">
+      {/* Ambient Glow Effects */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-[var(--primary)]/10 rounded-full blur-[120px]" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[150px]" />
+      </div>
+
+      {/* Grid Pattern Overlay */}
+      <div className="absolute inset-0" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)`,
+        backgroundSize: '40px 40px'
+      }} />
+
+      <div className="container mx-auto px-4 relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="relative rounded-3xl sm:rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden"
+          className="relative"
         >
-          {/* Background Image */}
-          <div className="absolute inset-0">
-            <img
-              src="https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=3000&auto=format&fit=crop"
-              alt="Dubai skyline at sunset"
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#1a1512]/95 via-[#2a2520]/85 to-[#3a3530]/60" />
-          </div>
+          {/* Main Card - Glassmorphism */}
+          <div className="relative rounded-3xl sm:rounded-[2.5rem] lg:rounded-[3rem] overflow-hidden border border-white/10 bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-2xl shadow-[0_40px_100px_-20px_rgba(0,0,0,0.6)]">
+            
+            {/* Gradient Border Glow */}
+            <div className="absolute inset-0 rounded-3xl sm:rounded-[2.5rem] lg:rounded-[3rem] p-[1px] bg-gradient-to-br from-[var(--primary)]/30 via-transparent to-purple-500/20 pointer-events-none" />
 
-          {/* Content */}
-          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-10 lg:gap-24 p-6 sm:p-10 md:p-14 lg:p-20 xl:p-24">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcPFn8w41Do-AU84eTh-TDGEJII7tle_SO02AvzlhUrA&s=10"
+                alt="Dubai skyline modern"
+                className="w-full h-full object-cover opacity-20"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#0a0a0f]/95 via-[#14141e]/90 to-[#1a1a2e]/80" />
+            </div>
 
-            {/* Left */}
-            <div className="flex-1 max-w-3xl">
+            {/* Content */}
+            <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-20 p-8 sm:p-12 md:p-16 lg:p-20 xl:p-24">
 
-              {/* Badge */}
-              <div className="mb-5 sm:mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--primary)]/25 bg-white/5 px-3.5 py-1.5 sm:px-4 sm:py-2 backdrop-blur-xl">
-                <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[var(--primary)]" />
-            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.22em] text-white">
-  Free Premium Guide
-</span>
-              </div>
+                {/* Left */}
+                <div className="flex-1 max-w-3xl">
 
-              {/* Heading — small on mobile, large on desktop */}
-              <h2
-                className="
-                  font-black
-                  leading-[1.05]
-                  sm:leading-[0.95]
-                  tracking-[-0.03em]
-                  sm:tracking-[-0.05em]
-                  text-white
-                  text-[1.75rem]
-                  xs:text-3xl
-                  sm:text-5xl
-                  md:text-6xl
-                  lg:text-7xl
-                  xl:text-[5.8rem]
-                  2xl:text-[6.4rem]
-                  max-w-5xl
-                "
-                style={{ fontFamily: "'Poppins', sans-serif" }}
-              >
-                {t("emailCapture.headline")}
-                <span
-                  className="
-                    mt-1 sm:mt-2 block
-                    bg-gradient-to-r
-                    from-white
-                    via-white
-                    to-neutral-200
-                    bg-clip-text
-                    text-transparent
-                    drop-shadow-[0_0_18px_rgba(255,255,255,0.25)]
-                    font-semibold
-                    tracking-tight
-                  "
-                >
-                  {t("emailCapture.headlineHighlight")}
-                </span>
-              </h2>
+                  {/* Premium Badge */}
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                    className="mb-6 sm:mb-8 inline-flex items-center gap-3 rounded-full border border-[var(--primary)]/30 bg-[var(--primary)]/10 px-4 py-2 backdrop-blur-xl"
+                  >
+                    <div className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--primary)] opacity-60" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--primary)]" />
+                    </div>
+                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-[var(--primary)]">
+                      Free Consultation
+                    </span>
+                    <span className="h-4 w-px bg-[var(--primary)]/20" />
+               
+                  </motion.div>
 
-              {/* Description */}
-              <p
-                className="
-                  mt-4 sm:mt-7
-                  max-w-xl
-                  text-white/70
-                  text-sm
-                  sm:text-lg
-                  lg:text-xl
-                  leading-6
-                  sm:leading-8
-                "
-              >
-                {t("emailCapture.description")}
-              </p>
-
-              {/* Premium Email Capture — input and button are now separate elements */}
-              <div className="mt-6 sm:mt-8 w-full max-w-lg">
-                <div className="flex flex-col sm:flex-row items-stretch gap-2.5 sm:gap-3">
-{/* Modern Email Input */}
-<div
-  className={`
-    group relative flex-1 flex items-center gap-3
-    overflow-hidden
-    rounded-2xl
-    border
-    ${
-      focused
-        ? "border-[var(--primary)]/50 ring-4 ring-[var(--primary)]/10"
-        : "border-zinc-200/70 dark:border-white/10"
-    }
-    bg-white/90 dark:bg-zinc-900/80
-    backdrop-blur-2xl
-    shadow-[0_8px_30px_rgba(0,0,0,0.06)]
-    dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]
-    hover:border-[var(--primary)]/30
-    transition-all duration-300
-    px-4 sm:px-5
-    py-3.5
-  `}
->
-  {/* Soft Glow */}
-  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--primary)]/5 via-transparent to-[var(--primary)]/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
-
-  {/* Icon */}
-  <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
-    <Mail className="h-4.5 w-4.5" />
-  </div>
-
-  {/* Input */}
-  <input
-    type="email"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-    onFocus={() => setFocused(true)}
-    onBlur={() => setFocused(false)}
-    placeholder={t("emailCapture.placeholder")}
-    className="
-      relative
-      w-full
-      bg-transparent
-      text-[15px] sm:text-base
-      font-medium
-      tracking-tight
-      text-zinc-900
-      dark:text-white
-      placeholder:text-zinc-400
-      dark:placeholder:text-zinc-500
-      outline-none
-      caret-[var(--primary)]
-    "
-    style={{ fontFamily: "'Poppins', sans-serif" }}
-  />
-</div>
-                  {/* Button — separate pill, not attached to the input */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  {/* Heading */}
+                  <motion.h2
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.3, duration: 0.6 }}
                     className="
-                      group
-                      relative
-                      overflow-hidden
-                      flex items-center justify-center gap-2
-                      w-full sm:w-auto
-                      rounded-xl sm:rounded-2xl
-                      bg-[var(--primary)]
-                      hover:brightness-110
-                      px-5 sm:px-7
-                      py-2.5 sm:py-3.5
-                      text-sm sm:text-base
-                      font-semibold
+                      font-black
+                      leading-[1.05]
+                      tracking-[-0.03em]
                       text-white
-                      whitespace-nowrap
-                      transition-all duration-300
+                      text-[2rem]
+                      xs:text-[2.5rem]
+                      sm:text-[3.5rem]
+                      md:text-[4.5rem]
+                      lg:text-[5rem]
+                      xl:text-[5.5rem]
+                      2xl:text-[6rem]
+                      max-w-4xl
+                    "
+                    style={{ fontFamily: "'Fraunces', serif" }}
+                  >
+                    Get Your Free
+  <motion.span 
+    className="block mt-1 sm:mt-2 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 bg-clip-text text-transparent"
+    animate={{ 
+      backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
+    }}
+    transition={{ 
+      duration: 6, 
+      repeat: Infinity,
+      ease: "linear"
+    }}
+    style={{ backgroundSize: '200% 100%' }}
+  >
+    Guidance Today
+  </motion.span>
+                  </motion.h2>
+
+                  {/* Description */}
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                    className="
+                      mt-4 sm:mt-6
+                      max-w-xl
+                      text-white/60
+                      text-sm
+                      sm:text-base
+                      lg:text-lg
+                      leading-relaxed
+                      sm:leading-relaxed
                     "
                   >
-                    <span
+                    Everything you need to know about UAE visas, residency, and citizenship. 
+                    Expert insights from Amer — professional typist with 10+ years of experience.
+                  </motion.p>
+
+                  {/* Trust Indicators */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.5, duration: 0.6 }}
+                    className="mt-6 flex flex-wrap items-center gap-6"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex -space-x-1">
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="w-6 h-6 rounded-full border-2 border-white/20 bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
+                            <img
+                              src={`https://i.pravatar.cc/40?img=${i + 10}`}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <span className="text-xs font-medium text-white/50">
+                        <span className="text-white font-semibold">2,000+</span> professionals
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white/40">
+                      <span className="h-4 w-px bg-white/10" />
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <Star key={i} className="w-3.5 h-3.5 fill-[var(--primary)] text-[var(--primary)]" />
+                        ))}
+                      </div>
+                      <span className="text-xs font-medium text-white/50">4.9 rating</span>
+                    </div>
+                  </motion.div>
+
+                  {/* Email Capture Form */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : {}}
+                    transition={{ delay: 0.6, duration: 0.6 }}
+                    className="mt-8 w-full max-w-lg"
+                  >
+                    <div className="flex flex-col sm:flex-row items-stretch gap-3">
+
+                      {/* Modern Email Input */}
+                      <div
+                        className={`
+                          group relative flex-1 flex items-center gap-3
+                          overflow-hidden
+                          rounded-2xl
+                          border
+                          ${focused
+                            ? 'border-[var(--primary)]/50 ring-4 ring-[var(--primary)]/20'
+                            : 'border-white/10'
+                          }
+                          bg-white/5
+                          backdrop-blur-xl
+                          transition-all duration-300
+                          px-4 sm:px-5
+                          py-3.5
+                          hover:border-white/20
+                        `}
+                      >
+                        {/* Glow Effect */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--primary)]/10 via-transparent to-[var(--primary)]/10 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
+
+                        {/* Icon */}
+                        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/15 text-[var(--primary)]">
+                          <Mail className="h-4.5 w-4.5" />
+                        </div>
+
+                        {/* Input */}
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          onFocus={() => setFocused(true)}
+                          onBlur={() => setFocused(false)}
+                          placeholder="Enter your email address"
+                          className="
+                            relative
+                            w-full
+                            bg-transparent
+                            text-[15px] sm:text-base
+                            font-medium
+                            text-white
+                            placeholder:text-white/30
+                            outline-none
+                            caret-[var(--primary)]
+                          "
+                          style={{ fontFamily: "'Inter', sans-serif" }}
+                        />
+                      </div>
+
+                               {/* CTA Button - Dark Blue */}
+                    <motion.button
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.97 }}
                       className="
-                        absolute inset-0 -translate-x-full
-                        bg-gradient-to-r from-transparent via-white/50 to-transparent
-                        transition-transform duration-700
-                        group-hover:translate-x-full
+                        group
+                        relative
+                        overflow-hidden
+                        flex items-center justify-center gap-2.5
+                        w-full sm:w-auto
+                        rounded-xl sm:rounded-2xl
+                        px-6 sm:px-8
+                        py-3.5 sm:py-4
+                        text-sm sm:text-base
+                        font-bold
+                        text-white
+                        whitespace-nowrap
+                        transition-all duration-300
+                        bg-gradient-to-r from-[#0D1F3C] via-[#1a2a4a] to-[#0D1F3C]
+                        hover:from-[#1a2a4a] hover:via-[#2a3a5a] hover:to-[#1a2a4a]
                       "
-                    />
-                    <span className="relative z-10 flex items-center gap-2">
-                      {t("emailCapture.cta")}
-                      <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                    </span>
-                  </motion.button>
+                    >
+                      {/* Shimmer Effect */}
+                      <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+                      
+                      {/* Subtle Glow */}
+                      <span className="absolute inset-0 rounded-xl sm:rounded-2xl opacity-0 bg-white/5 blur-xl transition-opacity duration-300 group-hover:opacity-100" />
+                      
+                      {/* Border Glow on Hover */}
+                      <span className="absolute inset-0 rounded-xl sm:rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
+                        boxShadow: 'inset 0 0 30px rgba(10, 22, 40, 0.2)'
+                      }} />
+                      
+                      <span className="relative z-10 flex items-center gap-2.5">
+                        Get Started Now
+                        <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform duration-300 group-hover:translate-x-1" />
+                      </span>
+                    </motion.button>
+                    </div>
+
+                    {/* Terms */}
+                    <p className="mt-3 sm:mt-4 px-1 text-[10px] sm:text-xs leading-5 text-white/30">
+                      By downloading, you agree to our
+                      <a href="/t&c" className="mx-1 font-medium text-white/50 hover:text-[var(--primary)] transition-colors underline underline-offset-2">
+                        Terms & Conditions
+                      </a>
+                      and
+                      <a href="/privacy" className="mx-1 font-medium text-white/50 hover:text-[var(--primary)] transition-colors underline underline-offset-2">
+                        Privacy Policy
+                      </a>
+                      . Unsubscribe anytime.
+                    </p>
+                  </motion.div>
                 </div>
 
-                {/* Terms */}
-                <p className="mt-3 sm:mt-4 px-1 text-[11px] sm:text-sm leading-5 sm:leading-6 text-white/50">
-                  {t("emailCapture.terms")}
-                  <a
-                    href="/t&c"
-                    className="font-medium underline underline-offset-4 hover:text-[var(--primary)]"
+                {/* Right - Visual */}
+                <div className="hidden lg:block flex-1">
+                  <motion.div
+                    initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                    animate={isInView ? { opacity: 1, x: 0, scale: 1 } : {}}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                    className="relative max-w-md ml-auto"
                   >
-                    {t("emailCapture.termsLink")}
-                  </a>
-                  {" • "}
-                  <a
-                    href="/privacy"
-                    className="font-medium underline underline-offset-4 hover:text-[var(--primary)]"
-                  >
-                    {t("emailCapture.privacyLink")}
-                  </a>
-                </p>
+                    {/* Main Image Card */}
+                    <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+                      <img
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHvHmcqgUfXVacxaUbUfjs1XvI7_RFxdQQnkjYegUdSQ&s=10"
+                        alt="Professional visa consultant"
+                        className="w-full h-auto object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                
+                    </div>
+
+                  {/* Floating Trust Badge */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={isInView ? { opacity: 1, y: 0 } : {}}
+                      transition={{ duration: 0.6, delay: 0.8 }}
+                      className="absolute -bottom-4 -right-4 flex items-center gap-3 rounded-2xl bg-white/90 dark:bg-white/10 backdrop-blur-xl border border-slate-200/50 dark:border-white/10 px-4 py-3 shadow-xl"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--primary)]/10 dark:bg-[var(--primary)]/20">
+                        <Users className="h-5 w-5 text-[var(--primary)]" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900 dark:text-white">10,000+</p>
+                        <p className="text-[10px] font-medium text-slate-500 dark:text-white/50">Applications Processed</p>
+                      </div>
+                    </motion.div>
+
+                  </motion.div>
+                </div>
               </div>
             </div>
+          </motion.div>
+        </div>
+      </section>
+    );
+  };
 
-            {/* Right - Image/Visual */}
-            <div className="hidden lg:block flex-1">
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="relative max-w-lg ml-auto"
-              >
-                <div className="relative rounded-2xl overflow-hidden border border-white/15">
-                  <img
-                    src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=800&auto=format&fit=crop"
-                    alt="Professional businesswoman in UAE"
-                    className="w-full h-auto object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
-                </div>
 
-                {/* Floating trust badge */}
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.6, delay: 0.6 }}
-                  className="absolute -bottom-5 -left-5 flex items-center gap-2 rounded-2xl border border-black/5 bg-white px-4 py-3"
-                >
-                  <span className="flex h-2 w-2 rounded-full bg-[var(--primary)] animate-pulse" />
-                  <span className="text-xs lg:text-sm font-semibold text-zinc-900">
-                    10,000+ applications processed
-                  </span>
-                </motion.div>
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-};
 
-// Analytics Section - Show stats with visual charts
+
+
+
+
 
 
 // Animated Tammat Footer with clip text
@@ -3097,7 +3175,7 @@ const TammatFooter = () => {
   const { t } = useTranslation();
 
   return (
-    <footer className="relative bg-foreground text-background overflow-hidden rounded-t-[2rem] border-t-2 border-primary/20">
+    <footer className="relative bg-foreground text-background overflow-hidden">
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 py-16 sm:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-16">

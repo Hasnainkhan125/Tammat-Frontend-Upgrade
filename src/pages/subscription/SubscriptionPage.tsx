@@ -761,25 +761,51 @@ export function SubscriptionPageInner() {
 
   const effectivePlan = getEffectivePlan(selectedPlan);
 
-  const handleSubscribe = async () => {
-    if (!user) {
-      navigate('/auth?redirect=/subscribe');
-      return;
-    }
+    const handleSubscribe = async () => {
+      if (!user) {
+        navigate('/auth?redirect=/subscribe');
+        return;
+      }
 
-    if (PAYMENT_MODE === 'checkout') {
+      if (PAYMENT_MODE === 'checkout') {
+        setIsRedirecting(true);
+        try {
+          const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
+          const token = localStorage.getItem('authToken');
+          const res = await fetch(`${apiBase}/api/v1/services/payments/checkout-session`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ lookupKey: effectivePlan.lookupKey }),
+          });
+          const data = await res.json();
+          if (!data.success || !data.url) {
+            toast.error(data.message || 'Failed to start checkout');
+            setIsRedirecting(false);
+            return;
+          }
+          window.location.href = data.url;
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : 'Something went wrong');
+          setIsRedirecting(false);
+        }
+      } else {
+        setStep('payment');
+      }
+    };
+
+    const handleManageBilling = async () => {
       setIsRedirecting(true);
       try {
         const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
         const token = localStorage.getItem('authToken');
-        const res = await fetch(`${apiBase}/api/v1/services/payments/checkout-session`, {
+        const res = await fetch(`${apiBase}/api/v1/services/payments/portal-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ lookupKey: effectivePlan.lookupKey }),
+          body: JSON.stringify({ returnUrl: window.location.href }),
         });
         const data = await res.json();
         if (!data.success || !data.url) {
-          toast.error(data.message || 'Failed to start checkout');
+          toast.error(data.message || 'Failed to open billing portal');
           setIsRedirecting(false);
           return;
         }
@@ -788,65 +814,39 @@ export function SubscriptionPageInner() {
         toast.error(err instanceof Error ? err.message : 'Something went wrong');
         setIsRedirecting(false);
       }
-    } else {
-      setStep('payment');
+    };
+
+    if (loadingCurrent) {
+      return (
+        <div className="flex items-center justify-center py-24 bg-white dark:bg-black text-black/50 dark:text-white/50 gap-2 transition-colors duration-300">
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--primary)] dark:text-[var(--primary)]" />
+          <span>Loading…</span>
+        </div>
+      );
     }
-  };
 
-  const handleManageBilling = async () => {
-    setIsRedirecting(true);
-    try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`${apiBase}/api/v1/services/payments/portal-session`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ returnUrl: window.location.href }),
-      });
-      const data = await res.json();
-      if (!data.success || !data.url) {
-        toast.error(data.message || 'Failed to open billing portal');
-        setIsRedirecting(false);
-        return;
-      }
-      window.location.href = data.url;
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Something went wrong');
-      setIsRedirecting(false);
+    if (currentSub && (currentSub.status === 'active' || currentSub.status === 'trialing')) {
+      return (
+        <ManageSubscriptionView
+          subscription={currentSub}
+          onManageBilling={handleManageBilling}
+          isRedirecting={isRedirecting}
+        />
+      );
     }
-  };
 
-  if (loadingCurrent) {
-    return (
-      <div className="flex items-center justify-center py-24 bg-white dark:bg-black text-black/50 dark:text-white/50 gap-2 transition-colors duration-300">
-        <Loader2 className="h-5 w-5 animate-spin text-[var(--primary)] dark:text-[var(--primary)]" />
-        <span>Loading…</span>
-      </div>
-    );
-  }
-
-  if (currentSub && (currentSub.status === 'active' || currentSub.status === 'trialing')) {
-    return (
-      <ManageSubscriptionView
-        subscription={currentSub}
-        onManageBilling={handleManageBilling}
-        isRedirecting={isRedirecting}
-      />
-    );
-  }
-
-  if (PAYMENT_MODE === 'elements' && step === 'payment') {
-    return (
-      <ElementsPaymentForm
-        plan={selectedPlan}
-        effectivePlan={effectivePlan}
-        onBack={() => setStep('select')}
-        onSuccess={() => {
-          fetchCurrentSub();
-        }}
-      />
-    );
-  }
+    if (PAYMENT_MODE === 'elements' && step === 'payment') {
+      return (
+        <ElementsPaymentForm
+          plan={selectedPlan}
+          effectivePlan={effectivePlan}
+          onBack={() => setStep('select')}
+          onSuccess={() => {
+            fetchCurrentSub();
+          }}
+        />
+      );
+    }
 
   return (
     <div className="mx-auto p-6 space-y-8 relative z-10">

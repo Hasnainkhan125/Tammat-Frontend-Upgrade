@@ -30,6 +30,7 @@ import {
   RefreshCw as RefreshIcon,
   XCircle as XCircleIcon,
   Building,
+  Zap,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
@@ -95,7 +96,7 @@ const ALL_CATEGORIES = [
 const MOBILE_CATEGORIES = [
   { key: '',          label: 'All', icon: Grid },
   { key: 'golden',    label: 'Golden Visa', icon: Crown },
-    { key: 'family',    label: 'Family', icon: Users },
+  { key: 'family',    label: 'Family', icon: Users },
   { key: 'renew',     label: 'Renewal', icon: RefreshIcon },
 ]
 
@@ -159,17 +160,20 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
         transition={{ duration: 0.26 }}
         className="space-y-1.5 sm:space-y-2 mt-1 sm:mt-2 mb-1 sm:mb-2"
       >
-        <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--primary)]">
-          {t('upload.step', 'Choose your service')}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--primary)] dark:text-[var(--primary)]">
+            {t('upload.step', 'Choose your service')}
+          </p>
+        </div>
         <h1
           className="
             w-full max-w-4xl
-            font-bold leading-tight tracking-tight
+            font-bold leading-[1.3] tracking-tight
             break-words whitespace-normal
-            text-black dark:text-white
-            text-[1.6rem] sm:text-[2rem] md:text-[2.6rem] lg:text-[3.2rem] xl:text-[3.8rem]
+            text-slate-900 dark:text-white
+            text-[1.8rem] sm:text-[2.4rem] md:text-[3rem] lg:text-[3.6rem] xl:text-[4.2rem]
           "
+          style={{ fontFamily: "'Fraunces', serif" }}
         >
           {t("service.title", "What do you want to get done today?")}
         </h1>
@@ -178,7 +182,7 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
         </p>
       </motion.div>
 
-      {/* Search — modern pill, no browser focus outline */}
+      {/* Search — modern glass-morphism */}
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
@@ -188,14 +192,19 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
         <div
           className={`
             relative flex items-center gap-2.5 h-12 rounded-2xl px-3.5 sm:px-4
-            bg-[#F4F6F8] dark:bg-white/[0.06]
-            transition-all duration-200
-            ${inputFocused ? 'bg-white dark:bg-white/[0.09] shadow-[0_2px_14px_rgba(10,50,105,0.10)]' : ''}
+            bg-white/80 dark:bg-white/[0.06]
+            backdrop-blur-xl
+            border border-slate-200/50 dark:border-white/10
+            transition-all duration-300
+            ${inputFocused 
+              ? 'bg-white dark:bg-white/[0.09] shadow-[0_8px_30px_-8px_rgba(10,50,105,0.15)] dark:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.3)] border-[var(--primary)]/50 dark:border-[var(--primary)]/30' 
+              : ''
+            }
           `}
         >
           <Search
             className={`w-4 h-4 shrink-0 transition-colors duration-200 ${
-              inputFocused ? 'text-[var(--primary)]' : 'text-[#94A3B8]'
+              inputFocused ? 'text-[var(--primary)]' : 'text-[#94A3B8] dark:text-zinc-500'
             }`}
           />
           <input
@@ -221,19 +230,19 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 onClick={() => setQuery('')}
-                className="shrink-0 text-[#94A3B8] hover:text-[var(--primary)] dark:hover:text-white"
+                className="shrink-0 text-[#94A3B8] hover:text-[var(--primary)] dark:hover:text-white transition-colors"
               >
                 <XIcon className="w-4 h-4" />
               </motion.button>
             )}
           </AnimatePresence>
 
-          {/* underline accent — grows in on focus instead of a boxed outline */}
+          {/* underline accent */}
           <motion.div
             initial={false}
             animate={{ width: inputFocused ? '100%' : '0%' }}
             transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="absolute left-0 right-0 bottom-0 h-[2px] bg-[var(--primary)] rounded-full"
+            className="absolute left-0 right-0 bottom-0 h-[2.5px] bg-[var(--primary)] rounded-full"
           />
         </div>
       </motion.div>
@@ -241,7 +250,7 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
       {/* Category quick-select - scrollable on mobile */}
       <div 
         ref={scrollContainerRef}
-        className="w-full overflow-x-auto overflow-y-hidden pb-1 scrollbar-hide -mx-4 px-1 sm:mx-0 sm:px-0"
+        className="w-full overflow-x-auto overflow-y-hidden pb-1 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <motion.div
@@ -251,26 +260,36 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
           className="flex gap-2"
           style={{ minWidth: 'max-content' }}
         >
-          {/* Show all categories on desktop, only 4 on mobile */}
           {(() => {
-            const categories = window.innerWidth < 640 ? MOBILE_CATEGORIES : ALL_CATEGORIES
+            const isMobile = window.innerWidth < 640
+            const categories = isMobile ? MOBILE_CATEGORIES : ALL_CATEGORIES
             return categories.map(cat => {
               const Icon = cat.icon
+              const isActive = catFilter === cat.key
               return (
-                <button
+                <motion.button
                   key={cat.key}
                   onClick={() => setCatFilter(cat.key)}
+                  whileHover={{ y: -2, scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
                   className={`
-                    shrink-0 px-3 py-1.5 rounded-full text-[13px] font-medium border transition-all duration-150 whitespace-nowrap flex items-center gap-1.5
-                    ${catFilter === cat.key
-                      ? 'bg-[var(--primary)] text-white border-[var(--primary)] dark:bg-[var(--primary)] dark:text-white dark:border-[var(--primary)]'
-                      : 'bg-white text-[#64748B] border-[#E2E8F0] hover:border-[var(--primary)] hover:text-[var(--primary)] dark:bg-zinc-900 dark:text-zinc-400 dark:border-white/10 dark:hover:border-[var(--primary)]/60 dark:hover:text-white'
+                    shrink-0 
+                    px-3 sm:px-3.5
+                    py-2 sm:py-2 
+                    rounded-full 
+                    text-[10px] sm:text-[13px] 
+                    font-medium 
+                    border transition-all duration-300 whitespace-nowrap 
+                    flex items-center gap-1.5 sm:gap-2
+                    ${isActive
+                      ? 'bg-[var(--primary)] text-white border-[var(--primary)] shadow-[0_4px_16px_rgba(10,50,105,0.3)] dark:shadow-[0_4px_16px_rgba(10,50,105,0.2)]'
+                      : 'bg-white/80 dark:bg-zinc-900/80 text-[#64748B] dark:text-zinc-400 border-[#E2E8F0] dark:border-white/10 hover:border-[var(--primary)] hover:text-[var(--primary)] dark:hover:border-[var(--primary)]/60 dark:hover:text-white backdrop-blur-sm'
                     }
                   `}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${isActive ? 'text-white' : ''}`} />
                   {t(`service.cat.${cat.key || 'all'}`, cat.label)}
-                </button>
+                </motion.button>
               )
             })
           })()}
@@ -313,89 +332,100 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
               <motion.button
                 key={svc?.id}
                 variants={cardV}
-                whileHover={{ y: -4 }}
+                whileHover={{ y: -6, scale: 1.01 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => handleSelect(svc)}
                 disabled={tapped !== null}
                 className={`
                   group relative w-full text-left rounded-[28px] cursor-pointer
-                  overflow-hidden transition-all duration-300
-                  border border-transparent dark:border-white/10
+                  overflow-hidden transition-all duration-400
+                  border
                   ${active
-                    ? 'bg-[var(--primary)]/[0.06] dark:bg-[var(--primary)]/10 shadow-[0_18px_40px_rgba(10,50,105,0.24)] dark:shadow-[0_18px_40px_rgba(10,50,105,0.16)]'
-                    : 'bg-white dark:bg-black shadow-[0_2px_6px_rgba(10,50,105,0.06)] hover:shadow-[0_20px_40px_rgba(10,50,105,0.12)] dark:shadow-none dark:hover:border-white/20'
+                    ? 'border-[var(--primary)]/40 dark:border-[var(--primary)]/30 bg-[var(--primary)]/[0.04] dark:bg-[var(--primary)]/10 shadow-[0_20px_60px_-12px_rgba(10,50,105,0.25)] dark:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.4)]'
+                    : 'border-slate-200/60 dark:border-white/10 bg-white/90 dark:bg-black/40 backdrop-blur-sm hover:border-[var(--primary)]/30 dark:hover:border-[var(--primary)]/20 hover:shadow-[0_20px_40px_-12px_rgba(10,50,105,0.15)] dark:hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.3)]'
                   }
                 `}
               >
-                {/* Accent edge */}
+                {/* Glass shimmer on hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+                </div>
+
+                {/* Accent edge - animated gradient */}
                 <div
                   className={`
-                    absolute left-0 top-0 h-full w-[4px] transition-colors duration-300
-                    ${active ? 'bg-[var(--primary)]' : 'bg-transparent group-hover:bg-[var(--primary)]/10 dark:group-hover:bg-white/10'}
+                    absolute left-0 top-0 h-full w-[4px] transition-all duration-500
+                    ${active 
+                      ? 'bg-gradient-to-b from-[var(--primary)] to-[var(--primary)]/40' 
+                      : 'bg-transparent group-hover:bg-gradient-to-b group-hover:from-[var(--primary)]/40 group-hover:to-transparent'
+                    }
                   `}
                 />
 
-                {/* Most-chosen ribbon */}
+                {/* Most-chosen ribbon - modern */}
                 {chosen && !active && (
                   <div className="absolute top-0 right-4 z-10">
-                    <Badge className="h-[22px] px-2.5 text-[10px] font-bold bg-[var(--primary)] text-white border-0 rounded-full gap-1 leading-none shadow-sm">
+                    <Badge className="h-[24px] px-3 text-[10px] font-bold bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 text-white border-0 rounded-full gap-1.5 leading-none shadow-lg shadow-[var(--primary)]/30">
                       <TrendingUp className="w-3 h-3" />
                       {t('service.mostChosen', 'Most chosen')}
                     </Badge>
                   </div>
                 )}
 
-                <div className="relative flex items-start gap-3.5 sm:gap-5 px-4 sm:px-6 pt-5 sm:pt-6">
-                  {/* Icon chip — bigger, layered */}
+                <div className="relative flex items-start gap-3.5 sm:gap-5 px-5 sm:px-6 pt-5 sm:pt-6">
+                  {/* Icon chip — modern glass */}
                   <div
                     className={`
                       relative shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[20px] flex items-center justify-center
-                      transition-all duration-300
+                      transition-all duration-400
                       ${active
-                        ? 'bg-[var(--primary)] text-white'
-                        : 'bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/80 text-white group-hover:scale-105 dark:from-[var(--primary)]/25 dark:to-[var(--primary)]/10 dark:text-white dark:border dark:border-[var(--primary)]/30'
+                        ? 'bg-gradient-to-br from-[var(--primary)] to-[var(--primary)]/80 text-white shadow-lg shadow-[var(--primary)]/30'
+                        : 'bg-gradient-to-br from-[var(--primary)]/10 to-[var(--primary)]/5 text-[var(--primary)] group-hover:scale-105 dark:from-[var(--primary)]/20 dark:to-[var(--primary)]/10 dark:text-white'
                       }
                     `}
                   >
-                    <Icon className="w-5 h-5 sm:w-7 sm:h-7" strokeWidth={2} />
+                    <Icon className="w-5 h-5 sm:w-7 sm:h-7" strokeWidth={1.8} />
                     {/* Verified badge overlay */}
-                    <span className="absolute -bottom-1.5 -right-1.5 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white dark:bg-black border-2 border-white dark:border-black flex items-center justify-center shadow-sm">
+                    <span className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white dark:bg-black border-2 border-white dark:border-black flex items-center justify-center shadow-md transition-all duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
                       <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[var(--primary)]" strokeWidth={2.5} />
                     </span>
                   </div>
 
                   {/* Text content */}
                   <div className="flex-1 min-w-0 pt-0.5">
-                    <span className="block font-bold text-[var(--primary)] leading-snug text-[15px] sm:text-[18px]">
+                    <span className="block font-bold text-slate-900 dark:text-white leading-snug text-[16px] sm:text-[19px]">
                       {svc.name}
                     </span>
 
+                    <p className="text-[12px] sm:text-[13px] text-slate-500 dark:text-zinc-400 mt-0.5 line-clamp-1">
+                      {sub}
+                    </p>
+
                     <div className="flex items-center gap-1.5 sm:gap-2 mt-2.5 sm:mt-3 flex-wrap">
                       {svc.processingTime && (
-                        <span className="flex items-center gap-1 text-[10px] sm:text-[11.5px] font-semibold text-[var(--primary)] bg-[#F0F4F8] dark:bg-white/10 rounded-full px-2 sm:px-2.5 py-1">
+                        <span className="flex items-center gap-1 text-[10px] sm:text-[11.5px] font-semibold text-[var(--primary)] bg-[var(--primary)]/10 dark:bg-[var(--primary)]/20 rounded-full px-2.5 sm:px-3 py-1">
                           <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                           {svc.processingTime}
                         </span>
                       )}
                       {(svc.requiredDocuments?.length ?? 0) > 0 && (
-                        <span className="flex items-center gap-1 text-[10px] sm:text-[11.5px] font-medium text-[#64748B] bg-[#F8FAFC] dark:bg-white/5 dark:text-zinc-400 rounded-full px-2 sm:px-2.5 py-1">
+                        <span className="flex items-center gap-1 text-[10px] sm:text-[11.5px] font-medium text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/5 rounded-full px-2.5 sm:px-3 py-1">
                           <FileText className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                          {svc.requiredDocuments!.length} {t('service.docsRequired', 'documents')}
+                          {svc.requiredDocuments!.length} {t('service.docsRequired', 'docs')}
                         </span>
                       )}
-                      <span className="flex items-center gap-0.5 text-[10px] sm:text-[11.5px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 rounded-full px-2 sm:px-2.5 py-1">
+                      <span className="flex items-center gap-0.5 text-[10px] sm:text-[11.5px] font-semibold text-amber-600 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400 rounded-full px-2.5 sm:px-3 py-1">
                         <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current" />
                         4.9
                       </span>
                     </div>
                   </div>
-
                 </div>
 
-                {/* Price footer — modern split layout with CTA pill */}
-                <div className="relative flex items-center justify-between gap-3 px-4 sm:px-6 py-3.5 sm:py-4 mt-4 sm:mt-5 border-t border-black/[0.05] dark:border-white/10 bg-gradient-to-b from-transparent to-black/[0.015] dark:to-white/[0.02]">
+                {/* Price footer — modern */}
+                <div className="relative flex items-center justify-between gap-3 px-5 sm:px-6 py-3.5 sm:py-4 mt-4 sm:mt-5 border-t border-slate-200/50 dark:border-white/10 bg-gradient-to-b from-transparent to-slate-50/50 dark:to-white/[0.02]">
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-[#94A3B8] dark:text-zinc-500">
+                    <span className="flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
                       <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                       {t('service.startingFrom', 'Starting from')}
                     </span>
@@ -406,52 +436,49 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
                           width={13}
                           height={13}
                           alt="AED"
-                          className="opacity-60 translate-y-[1px] transition-opacity duration-300 group-hover:opacity-100"
+                          className="opacity-60 translate-y-[1px] transition-opacity duration-300 group-hover:opacity-100 dark:brightness-200"
                         />
                         <span
                           className={`
-                            text-[19px] sm:text-[23px] font-extrabold tracking-tight tabular-nums
-                            bg-clip-text text-transparent transition-all duration-300
-                            bg-gradient-to-br from-slate-900 to-slate-900/70 dark:from-white dark:to-white/70
-                            ${active ? 'from-[var(--primary)] to-[var(--primary)]' : 'group-hover:from-[var(--primary)] group-hover:to-[var(--primary)]'}
+                            text-[20px] sm:text-[24px] font-extrabold tracking-tight tabular-nums
+                            transition-all duration-300
+                            ${active 
+                              ? 'text-[var(--primary)]' 
+                              : 'text-slate-900 dark:text-white group-hover:text-[var(--primary)]'
+                            }
                           `}
                         >
                           {priceLabel}
                         </span>
                       </div>
                     ) : (
-                      <span className="text-[11px] sm:text-[12px] font-medium text-[#CBD5E1] dark:text-zinc-600 italic">
+                      <span className="text-[11px] sm:text-[12px] font-medium text-slate-400 dark:text-zinc-600 italic">
                         {t('service.priceOnRequest', 'Price on request')}
                       </span>
                     )}
                   </div>
 
-                  {/* CTA pill — premium: gradient fill, border glow, shimmer sweep on hover */}
+                  {/* CTA pill — modern with glow */}
                   <span
                     className={`
                       relative shrink-0 flex items-center overflow-hidden
-                      text-[11px] sm:text-[12.5px] font-bold rounded-full px-4 sm:px-5 py-2 sm:py-2.5
-                      border transition-all duration-300
+                      text-[11px] sm:text-[12.5px] font-bold rounded-full px-4 sm:px-6 py-2 sm:py-2.5
+                      transition-all duration-400
                       ${active
-                        ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 text-white border-transparent shadow-[0_6px_18px_rgba(10,50,105,0.30)]'
+                        ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 text-white shadow-lg shadow-[var(--primary)]/30'
                         : `
-                          bg-white text-[var(--primary)] border-[var(--primary)]/15
-                          group-hover:bg-gradient-to-r group-hover:from-[var(--primary)] group-hover:to-[var(--primary)]/80
-                          group-hover:text-white group-hover:border-transparent
-                          group-hover:shadow-[0_6px_18px_rgba(10,50,105,0.30)]
-                          dark:bg-white/5 dark:text-white dark:border-white/10
+                          bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-white
+                          group-hover:bg-[var(--primary)] group-hover:text-white
+                          group-hover:shadow-lg group-hover:shadow-[var(--primary)]/30
+                          dark:group-hover:bg-[var(--primary)]
                         `
                       }
                     `}
                   >
-                    {/* shimmer sweep */}
-                    <span
-                      className="pointer-events-none absolute inset-0 -translate-x-[120%] group-hover:translate-x-[120%] transition-transform duration-[900ms] ease-out"
-                      style={{
-                        background: 'linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%)',
-                      }}
-                    />
-                    <span className="relative">{t('service.getStarted', 'Get started')}</span>
+                    <span className="relative flex items-center gap-2">
+                      <Zap className="w-3.5 h-3.5" />
+                      {t('service.getStarted', 'Get started')}
+                    </span>
                   </span>
                 </div>
               </motion.button>
@@ -460,17 +487,25 @@ export default function ServiceStep({ services, loading, onSelect }: ServiceStep
         </motion.div>
       )}
 
-      {/* Trust footer */}
+      {/* Trust footer - modern */}
       <AnimatePresence>
         {!loading && filtered.length > 0 && (
-          <motion.p
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-center text-[11px] text-[#94A3B8] pb-1"
+            className="flex items-center justify-center gap-6 text-[11px] text-slate-400 dark:text-zinc-500 pb-1"
           >
-            {t('service.trustFooter', '10,000+ applications processed · 97% approval rate')}
-          </motion.p>
+            <span className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)]" />
+              {t('service.trustFooter', '10,000+ applications processed')}
+            </span>
+            <span className="h-4 w-px bg-slate-200 dark:bg-white/10" />
+            <span className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--primary)]" />
+              97% approval rate
+            </span>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
